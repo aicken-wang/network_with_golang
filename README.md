@@ -18,14 +18,14 @@
 
 ## 通过使用Go的标准库建立TCP连接
 
-​	Go的标准库中的网络软件包包括对创建基于TCP的服务器和能够连接到这些服务器的客户端的良好支持。即便如此，您还是有责任确保您正确地处理连接。您的软件应该注意传入的数据，并始终努力优雅地关闭连接。让我们编写一个TCP服务器，它可以侦听传入的TCP连接、从客户端启动连接、接受和异步处理每个连接、交换数据并终止连接
+​	Go的标准库中的网络软件包包括对创建基于TCP的服务器和能够连接到这些服务器的客户端的良好支持。即便如此，您还是有责任确保您正确地处理连接。您的软件应该注意传入的数据，并始终努力优雅地关闭连接。让我们编写一个TCP服务器，它可以监听传入的TCP连接、从客户端启动连接、接受和异步处理每个连接、交换数据并终止连接
 
 - 绑定、监听和接受连接（**Binding, Listening for, and Accepting Connections**）
 
-要创建能够侦听传入连接（称为listener）的TCP服务器，请使用网络。侦听功能。此函数将返回一个实现网络的对象。监听器接口。清单3-1显示了监听器的创建情况。
+要创建能够监听传入连接（称为listener）的TCP服务器，请使用网络。监听功能。此函数将返回一个实现网络的对象。监听器接口。清单3-1显示了监听器的创建情况。
 
 ```go
-//清单3-1 使用一个由操作系统随机分配的端口，在127.0.0.1上创建一个侦听器
+//清单3-1 使用一个由操作系统随机分配的端口，在127.0.0.1上创建一个监听器
 package ch03
 
 import (
@@ -48,15 +48,15 @@ func TestListener(t *testing.T) {
 
 ```
 
-​	该`net.Listen`函数接受网络类型2和由冒号3分隔的IP地址和端口。该函数返回一个网络。监听器接口1和一个错误接口。如果函数成功返回，则侦听器将绑定到指定的IP地址和端口。绑定意味着操作系统已将给定IP地址上的端口独家分配给侦听器。该操作系统不允许其他进程侦听绑定端口上的传入流量。如果尝试将侦听器绑定到当前绑定的端口，则为net。侦听器将返回一个错误。
+​	该`net.Listen`函数接受网络类型2和由冒号3分隔的IP地址和端口。该函数返回一个网络。监听器接口1和一个错误接口。如果函数成功返回，则监听器将绑定到指定的IP地址和端口。绑定意味着操作系统已将给定IP地址上的端口独家分配给监听器。该操作系统不允许其他进程监听绑定端口上的传入流量。如果尝试将监听器绑定到当前绑定的端口，则为net。监听器将返回一个错误。
 
-​	可以选择保留IP地址和端口参数为空。如果端口为零或空，则Go将随机分配一个端口号。您可以通过调用其Addr方法5来检索侦听器的地址。同样地，如果您省略了IP地址，则侦听器将被绑定到系统上的所有单播和任何单播IP地址。省略IP地址和端口，或者将第二个参数的冒号传递给net。侦听，将使您的侦听器使用随机端口绑定到所有单播和任何单播IP地址。
+​	可以选择保留IP地址和端口参数为空。如果端口为零或空，则Go将随机分配一个端口号。您可以通过调用其Addr方法5来检索监听器的地址。同样地，如果您省略了IP地址，则监听器将被绑定到系统上的所有单播和任何单播IP地址。省略IP地址和端口，或者将第二个参数的冒号传递给net。监听，将使您的监听器使用随机端口绑定到所有单播和任何单播IP地址。
 
-​	在大多数情况下，您应该使用tcp作为网络的网络类型。监听者的第一个参数。您可以通过传入tcp4来将侦听器限制为IPv4地址，或者通过传入tcp6来独家绑定到IPv6地址。你应该始终细致彻底的通过调用它的Close方法4来优雅地关闭侦听器，如果它对你的代码有意义的话，通常是延迟的。当然，这是一个测试用例，当测试完成时，Go会摧毁侦听器，但这仍然是一个很好的实践。未能关闭侦听器可能会导致代码中的内存泄漏或死锁，因为对侦听器的Acceet方法的调用可能会无限期阻塞。关闭侦听器将立即取消阻止对Accept方法的调用。
+​	在大多数情况下，您应该使用tcp作为网络的网络类型。监听者的第一个参数。您可以通过传入tcp4来将监听器限制为IPv4地址，或者通过传入tcp6来独家绑定到IPv6地址。你应该始终细致彻底的通过调用它的Close方法4来优雅地关闭监听器，如果它对你的代码有意义的话，通常是延迟的。当然，这是一个测试用例，当测试完成时，Go会摧毁监听器，但这仍然是一个很好的实践。未能关闭监听器可能会导致代码中的内存泄漏或死锁，因为对监听器的Acceet方法的调用可能会无限期阻塞。关闭监听器将立即取消阻止对Accept方法的调用。
 
 ```go
 /*
-	清单3-2演示了侦听器如何接受传入的TCP连接
+	清单3-2演示了监听器如何接受传入的TCP连接
 */ 
 // 1 使用 for-loop来处理新的连接
 for { 
@@ -76,11 +76,11 @@ for {
 
 
 
-​	除非您只接受一个传入连接，否则您需要使用循环1，这样您的服务器将接收每个传入连接，在程序中处理它，然后重新循环，准备接受下一个连接。串行接受连接是完全可以接受的，而且，但在此之外，您应该使用`goroutine`来处理每个连接。如果您的用例需要，您当然可以在接受连接后编写序列化代码，但它将非常低效，并且无法利用Go的优势。我们通过调用侦听器的“Accept”方法2来启动for循环。此方法将阻止，直到侦听器检测到传入连接并完成客户端与服务器之间的TCP握手过程。该调用返回一个`net.TCPConn`接口3 `conn`和一个err。例如，如果握手失败或侦听器关闭，则错误接口将为非零( err ! = nil )
+​	除非您只接受一个传入连接，否则您需要使用循环1，这样您的服务器将接收每个传入连接，在程序中处理它，然后重新循环，准备接受下一个连接。串行接受连接是完全可以接受的，而且，但在此之外，您应该使用`goroutine`来处理每个连接。如果您的用例需要，您当然可以在接受连接后编写序列化代码，但它将非常低效，并且无法利用Go的优势。我们通过调用监听器的“Accept”方法2来启动for循环。此方法将阻止，直到监听器检测到传入连接并完成客户端与服务器之间的TCP握手过程。该调用返回一个`net.TCPConn`接口3 `conn`和一个err。例如，如果握手失败或监听器关闭，则错误接口将为非零( err ! = nil )
 
 ​	连接接口的底层类型是指向网络的指针`net.TCPConn`，因为您正在接受TCP连接。连接接口表示`TCP`连接的服务器端。在大多数情况下， `net.Conn`提供了与客户端进行一般交互所需的所有方法。然而，这个`net.TCPConn`对象提供了我们将在第4章中介绍的附加功能
 
-​	要同时处理客户端连接，请剥离一个基本程序来异步处理每个连接4，以便侦听器可以为下一个传入的连接做好准备。然后，在程序退出之前调用连接的关闭方法5，通过向服务器发送`FIN`包优雅地终止连接。
+​	要同时处理客户端连接，请剥离一个基本程序来异步处理每个连接4，以便监听器可以为下一个传入的连接做好准备。然后，在程序退出之前调用连接的关闭方法5，通过向服务器发送`FIN`包优雅地终止连接。
 
 ## 正在与服务器建立连接
 
@@ -97,7 +97,7 @@ import (
 )
 
 func TestDial(t *testing.T) {
-	// 在一个随机端口上创建一个侦听器
+	// 在一个随机端口上创建一个监听器
 	listener, err := net.Listen("tcp", "127.0.0.1:")
 	if err != nil {
 		t.Fatal(err)
@@ -155,13 +155,13 @@ func TestDial(t *testing.T) {
 }
 ```
 
-​	首先在IP地址127.0.0.1上创建侦听器，客户端将连接到。您完全省略了端口号，因此Go将随机选择一个可用的端口。然后，在基本程序1中分离监听器，以便在测试后期使用客户端的连接。侦听器的程序程序包含像清单3-2这样的代码，用于在循环中接收传入的TCP连接，将每个连接旋转到自己的程序中。(我们经常调用这个`goroutine`处理程序。我将很快解释处理程序的实现细节，但它一次将从套接字读取1024字节并记录收到的内容。）
+​	首先在IP地址127.0.0.1上创建监听器，客户端将连接到。您完全省略了端口号，因此Go将随机选择一个可用的端口。然后，在基本程序1中分离监听器，以便在测试后期使用客户端的连接。监听器的程序程序包含像清单3-2这样的代码，用于在循环中接收传入的TCP连接，将每个连接旋转到自己的程序中。(我们经常调用这个`goroutine`处理程序。我将很快解释处理程序的实现细节，但它一次将从套接字读取1024字节并记录收到的内容。）
 
 标准库得`net.Dial`函数就像`net.Listen`的功能，它接受tcp等网络6、IP地址和端口组合7在本例中，是它尝试连接到`listener`的IP地址和端口。您可以使用主机名来代替IP地址和服务名称，如http，来代替端口号。如果主机名解析为多个IP地址，则Go将尝试连接到每个IP地址，直到连接成功或所有IP地址都已用尽为止。由于IPv6地址包含冒号分隔符，IPv6地址必须用方括号括起来。例如，“[2001:ed27::1]:https”在IPv6地址2001:ed27::1处指定了端口443。`net.Dial` (拨号)返回一个连接对象5和一个错误信息。
 
-​	现在您已成功建立了与监听器的连接，您可以从客户端开始优雅地终止连接8。在接收到FIN数据包之后，读取方法4返回`io.EOF`(Linux一切皆文件，socket文件描述符读到文件尾部)错误，向侦听器的代码指示您关闭了连接的一侧。连接的处理程序3退出，在退出时调用连接的关闭方法。这将向连接发送一个FIN数据包，从而完成TCP会话的正常终止
+​	现在您已成功建立了与监听器的连接，您可以从客户端开始优雅地终止连接8。在接收到FIN数据包之后，读取方法4返回`io.EOF`(Linux一切皆文件，socket文件描述符读到文件尾部)错误，向监听器的代码指示您关闭了连接的一侧。连接的处理程序3退出，在退出时调用连接的关闭方法。这将向连接发送一个FIN数据包，从而完成TCP会话的正常终止
 
-​	最后，请关闭监听器(第9处)。第2处的侦听器的Accept方法立即解除阻塞并返回错误。这个错误并不一定是失败，所以您只需记录它并继续前进。它不会导致您的测试失败。侦听器的goroutine退出，测试完成.
+​	最后，请关闭监听器(第9处)。第2处的监听器的Accept方法立即解除阻塞并返回错误。这个错误并不一定是失败，所以您只需记录它并继续前进。它不会导致您的测试失败。监听器的goroutine退出，测试完成.
 
 ### 理解超时和临时错误
 
@@ -529,7 +529,7 @@ You create a context by using context.WithDeadline 1 because you want to have th
 First, you need a listener. This listener accepts a single connection and closes it after the successful handshake 2. Next, you create your dialers. Since you're spinning up multiple dialers, it makes sense to abstract the dialing code to its own function 3. This anonymous function dials out to the given address by using DialContext. If it succeeds, it sends the dialer's ID across the response channel, provided you haven't yet canceled the context. You spin up multiple dialers by calling dial in separate goroutines using a for loop 4. If dial blocks on the call to DialContext because another dialer won the race, you cancel the context, either by way of the cancel function or the deadline,causing the dial function to exit early. You use a wait group to make sure the test doesn't proceed until all dial goroutines terminate after you cancel the context.
 ```
 
-首先，你需要一个侦听器。这个侦听器接受一个连接，并在成功握手2之后关闭它。接下来，创建拨号器。由于您正在轮询多个拨号器，因此将拨号代码抽象为它自己的函数3是有意义的。这个匿名函数使用`DialContext`拨出给定的地址。如果成功，它将通过响应通道发送拨号器的ID，前提是您还没有取消上下文。通过使用for循环4在单独的goroutine中调用dial，可以轮询多个拨号器。如果拨号阻塞对`DialContext`的调用，因为另一个拨号器赢得了比赛，您取消上下文，通过取消功能或截止日期，使拨号功能提前退出。您可以使用一个等待组(WaitGroup)来确保在取消上下文后所有拨号goroutine终止之前，测试不会继续进行。
+首先，你需要一个监听器。这个监听器接受一个连接，并在成功握手2之后关闭它。接下来，创建拨号器。由于您正在轮询多个拨号器，因此将拨号代码抽象为它自己的函数3是有意义的。这个匿名函数使用`DialContext`拨出给定的地址。如果成功，它将通过响应通道发送拨号器的ID，前提是您还没有取消上下文。通过使用for循环4在单独的goroutine中调用dial，可以轮询多个拨号器。如果拨号阻塞对`DialContext`的调用，因为另一个拨号器赢得了比赛，您取消上下文，通过取消功能或截止日期，使拨号功能提前退出。您可以使用一个等待组(WaitGroup)来确保在取消上下文后所有拨号goroutine终止之前，测试不会继续进行。
 
 ```
 Once the goroutines are running, one will win the race and make a successful connection to the listener. You receive the winning dialer's ID on the res channel 5, then abort the losing dialers by canceling the context. At this point, the call to wg.Wait blocks until the aborted dialer goroutines return. 
@@ -856,7 +856,7 @@ You pass in a zero duration for run 4 #6, preserving the 300 ms ping timer from 
 Runs 5 to 7 #7 simply listen for incoming pings without resetting the ping timer. As expected, the reader receives a ping at 300 ms intervals for the last three runs.
 ```
 
-运行5到7只是侦听传入的ping，而不重置ping计时器。正如预期的那样，在最后三次运行中，读取器以`300ms`的间隔收到一个ping。
+运行5到7只是监听传入的ping，而不重置ping计时器。正如预期的那样，在最后三次运行中，读取器以`300ms`的间隔收到一个ping。
 
 ```
 With Listing 3-10 saved to a file named ping.go and Listing 3-11 saved to 
@@ -987,13 +987,13 @@ You start a listener that accepts a connection, spins off a Pinger set to ping e
 
 
 
-您启动一个接受连接的侦听器，将Pinger设置为每秒ping一次，并将初始截止日期设置为5秒 1。从客户端的角度来看，当服务器到达其截止日期并终止其连接端的时候，它将接收4个ping，然后是一个`io.EOF`。然而，客户端可以通过在服务器到达其截止日期之前发送服务器数据 5 来提前服务器的截止日期。
+您启动一个接受连接的监听器，将Pinger设置为每秒ping一次，并将初始截止日期设置为5秒 1。从客户端的角度来看，当服务器到达其截止日期并终止其连接端的时候，它将接收4个ping，然后是一个`io.EOF`。然而，客户端可以通过在服务器到达其截止日期之前发送服务器数据 5 来提前服务器的截止日期。
 
 ```
 If the server reads data from its connection, it can be confident the network connection is still good. Therefore, it can inform the Pinger to reset 2 its timer and push the connection's deadline forward 3. To preempt the termination of the socket, the client listens for four ping messages 4 from the server before sending an emphatic pong message 5. This should buy the client five more seconds until the server reaches its deadline. The client reads four more pings 6 and then waits for the inevitable. You check that a total of nine seconds 7 has elapsed by the time the server terminates the connection, indicating the client's pong successfully triggered the reset of the ping timer
 ```
 
-如果服务器从它的连接中读取数据，它可以确信网络连接仍然是好的。因此，它可以通知Pinger重置它的定时器，并将连接的截止时间往前推。为了抢占套接字的终止，客户端在发送一个强调的pong消息5之前，侦听来自服务器的4条ping消息4。这应该能为客户端多争取5秒，直到服务器到达其截止日期。客户端读取另外四个ping  6，然后等待不可避免的结果。您检查服务器终止连接的时间总共已经过去了9秒 7，这表明客户端pong成功触发了ping计时器的重置
+如果服务器从它的连接中读取数据，它可以确信网络连接仍然是好的。因此，它可以通知Pinger重置它的定时器，并将连接的截止时间往前推。为了抢占套接字的终止，客户端在发送一个强调的pong消息5之前，监听来自服务器的4条ping消息4。这应该能为客户端多争取5秒，直到服务器到达其截止日期。客户端读取另外四个ping  6，然后等待不可避免的结果。您检查服务器终止连接的时间总共已经过去了9秒 7，这表明客户端pong成功触发了ping计时器的重置
 
 ```
 In practice, this method of advancing the ping timer cuts down on the 
@@ -1174,7 +1174,7 @@ You then spin up the listener and create a goroutine to listen for incoming conn
 
 你需要一些东西让客户端去读，所以你创建了一个16MB的随机数据的payload(有效负载) 1 比客户端在512KB的缓冲区中所能读到的更多的数据，这样它就会围绕它的for循环进行至少几次迭代。使用较大的缓冲区或较小的payload并在对read的单个调用中读取整个payload是完全可以接受的。不管payload和接收缓冲区大小如何，Go都正确处理数据。
 
-然后启动侦听器并创建一个goroutine来侦听传入的连接。`Onceaccepted`，服务器将整个有效负载写入网络连接 2。然后客户端从连接 4  中读取第一个512KB，然后继续循环。客户端每次继续读取最多512KB，直到出现错误或客户端读取整个16MB负载。
+然后启动监听器并创建一个goroutine来监听传入的连接。`Onceaccepted`，服务器将整个有效负载写入网络连接 2。然后客户端从连接 4  中读取第一个512KB，然后继续循环。客户端每次继续读取最多512KB，直到出现错误或客户端读取整个16MB负载。
 
 ### 使用扫描仪分隔读取
 
@@ -1202,7 +1202,7 @@ However, if you choose to use a delimiter to indicate the end of one message and
 If this is starting to sound a bit complex, it's because you must account for data across multiple Read calls and handle any errors along the way. Anytime you're tempted to roll your own solution to such a problem, check the standard library to see if a tried-and-true implementation already exists. In this case, bufio.Scanner does what you need.The bufio.Scanner is a convenient bit of code in Go's standard library that allows you to read delimited data. The Scanner accepts an io.Reader as its input. Since net.Conn has a Read method that implements the io.Reader interface, you can use the Scanner to easily read delimited data from a network connection. Listing 4-2 sets up a listener to serve up delimited data for later parsing by bufio.Scanner.
 ```
 
-如果这听起来有点复杂，那是因为您必须考虑跨多个Read调用的数据，并在此过程中处理任何错误。当您试图用自己的解决方案来解决此类问题时，请检查标准库，看看是否已经存在经过验证的实现。在这种情况下，`bufio.Scanner`你需要的。`bufio.Scanner`是Go标准库中的一个方便的代码，它允许你读取带分隔符的数据。扫描仪接受`io.Reader`作为其输入值。因为 `net.Conn`有一个读取的方法来实现`io.Reader`接口，您可以使用`Scanner`轻松地从网络连接读取分隔的数据。清单4-2设置了一个侦听器(listener)来提供带分隔符的数据，以便稍后由`bufio.Scanner`进行解析。
+如果这听起来有点复杂，那是因为您必须考虑跨多个Read调用的数据，并在此过程中处理任何错误。当您试图用自己的解决方案来解决此类问题时，请检查标准库，看看是否已经存在经过验证的实现。在这种情况下，`bufio.Scanner`你需要的。`bufio.Scanner`是Go标准库中的一个方便的代码，它允许你读取带分隔符的数据。扫描仪接受`io.Reader`作为其输入值。因为 `net.Conn`有一个读取的方法来实现`io.Reader`接口，您可以使用`Scanner`轻松地从网络连接读取分隔的数据。清单4-2设置了一个监听器(listener)来提供带分隔符的数据，以便稍后由`bufio.Scanner`进行解析。
 
 ```
 // 使用bufio.Scanner从网络中读取以空格分隔的文本
@@ -1661,7 +1661,7 @@ Your test should first create at least one of each type. You create two Binary t
 This is a good start. Let's finish up the client side of the test in Listing 4-11
 ```
 
-您的测试首先应该至少创建每种类型(BinaryType or StringType )中的一个。您创建了两个Binary类型和一个String类型。接下来，创建一个Payload接口片段，并添加指向所创建的Binary和String类型的指针。然后创建一个侦听器，该侦听器将接受连接，并将有效负载片中的每种类型写入该侦听器。
+您的测试首先应该至少创建每种类型(BinaryType or StringType )中的一个。您创建了两个Binary类型和一个String类型。接下来，创建一个Payload接口片段，并添加指向所创建的Binary和String类型的指针。然后创建一个监听器，该监听器将接受连接，并将有效负载片中的每种类型写入该监听器。
 
 这是一个良好的开端。让我们完成清单4-11中测试的客户端
 
@@ -1699,7 +1699,7 @@ This is a good start. Let's finish up the client side of the test in Listing 4-
 You know how many types to expect in the payloads slice, so you initiate a connection to the listener and attempt to decode each one. Finally, your test compares the type you decoded with the type the server sent. If there's any discrepancy with the variable type or its contents, the test fails. You can run the test with the -v flag to see the type and its value.Let's make sure the Binary type enforces the maximum payload size in Listing 4-12.
 ```
 
-您知道在有效负载片中期望有多少种类型，因此您发起一个到侦听器的连接，并尝试对每个类型进行解码。最后，测试将解码的类型与服务器发送的类型进行比较。如果与变量类型或其内容有任何差异，则测试失败。您可以使用-v标志运行测试，以查看类型及其值。让我们确保Binary类型强制执行清单4-12中的最大负载大小。
+您知道在有效负载片中期望有多少种类型，因此您发起一个到监听器的连接，并尝试对每个类型进行解码。最后，测试将解码的类型与服务器发送的类型进行比较。如果与变量类型或其内容有任何差异，则测试失败。您可以使用-v标志运行测试，以查看类型及其值。让我们确保Binary类型强制执行清单4-12中的最大负载大小。
 
 ```
 

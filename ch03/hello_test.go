@@ -8,7 +8,7 @@ import (
 )
 
 func TestDial(t *testing.T) {
-	// 在一个随机端口上创建一个侦听器
+	// 在一个随机端口上创建一个监听器
 	listener, err := net.Listen("tcp", "127.0.0.1:")
 	if err != nil {
 		t.Fatal(err)
